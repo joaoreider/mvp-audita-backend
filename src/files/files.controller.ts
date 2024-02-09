@@ -3,8 +3,10 @@ import {
   Controller,
   Get,
   InternalServerErrorException,
+  NotFoundException,
   Post,
   Query,
+  Res,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -12,7 +14,9 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { Logger } from '@nestjs/common';
 import { FilesService } from './files.service';
-
+import * as fs from 'fs';
+import { Response } from 'express';
+import { join } from 'path';
 @Controller('files')
 export class FilesController {
   private readonly logger = new Logger('FilesController');
@@ -66,6 +70,43 @@ export class FilesController {
         throw err;
       }
       this.logger.error(`Error: ${err}`);
+      throw new InternalServerErrorException('Error processing file');
+    }
+  }
+  @Get('download')
+  async downloadFile(@Query('filename') filename, @Res() res: Response) {
+    try {
+      this.logger.verbose(
+        `Api request to download file ${JSON.stringify(filename)}`,
+      );
+      if (!filename) {
+        throw new BadRequestException('Filename not informed');
+      }
+      const filepath = join('uploads', 'results', filename);
+      if (!fs.existsSync(filepath)) {
+        throw new NotFoundException('File to download not found');
+      }
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="${filename}"`,
+      );
+      res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      );
+
+      const fileStream = fs.createReadStream(filepath);
+      fileStream.pipe(res);
+      this.logger.verbose(`File ${filename} downloaded with success`);
+      return;
+    } catch (err) {
+      if (
+        err instanceof BadRequestException ||
+        err instanceof NotFoundException
+      ) {
+        throw err;
+      }
+      this.logger.error(`Error: ${err?.message}`);
       throw new InternalServerErrorException('Error processing file');
     }
   }

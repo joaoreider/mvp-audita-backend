@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  api:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: api
+    ports:
+      - '3000:3000'
+    volumes:
+      - '.:/app'
+    working_dir: /app
+    command: 'npm run start:dev'
+    restart: unless-stopped

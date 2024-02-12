@@ -24,7 +24,7 @@ export class FilesController {
 
   @Post('upload')
   @UseInterceptors(
-    FileInterceptor('file', {
+    FileInterceptor('files', {
       storage: diskStorage({
         destination: './uploads',
         filename: (req, file, cb) => {

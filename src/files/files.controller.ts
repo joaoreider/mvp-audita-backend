@@ -110,4 +110,10 @@ export class FilesController {
       throw new InternalServerErrorException('Error processing file');
     }
   }
+
+  @Get('clearUploads')
+  async clearUploads() {
+    await this.filesService.clearUploads();
+    return 'Uploads cleared with success!';
+  }
 }

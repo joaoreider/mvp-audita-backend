@@ -9,9 +9,9 @@ import {
   Res,
   UploadedFile,
   UseInterceptors,
+  Headers,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
 import { Logger } from '@nestjs/common';
 import { FilesService } from './files.service';
 import * as fs from 'fs';
@@ -25,12 +25,6 @@ export class FilesController {
   @Post('upload')
   @UseInterceptors(
     FileInterceptor('files', {
-      storage: diskStorage({
-        destination: './uploads',
-        filename: (req, file, cb) => {
-          cb(null, `${file.originalname}`);
-        },
-      }),
       limits: {
         fileSize: 1024 * 1024 * 10, // limit to 10MB
       },
@@ -47,9 +41,14 @@ export class FilesController {
       },
     }),
   )
-  uploadFile(@UploadedFile() file: Express.Multer.File) {
-    this.logger.verbose(`File uploaded with success: ${file?.originalname}`);
-    return 'File uploaded with success!';
+  uploadFile(
+    @UploadedFile() file: Express.Multer.File,
+    @Headers('analysis-code') analysisCode: string,
+  ) {
+    this.logger.log(
+      `File : ${file?.originalname} uploaded to server...Sending to S3`,
+    );
+    return this.filesService.uploadFile(file, analysisCode);
   }
 
   @Get('process')

@@ -65,7 +65,7 @@ export class FilesService {
     const config = {
       string: '',
       method: 'GET',
-      url: `${this.PROCESSOR_BASE_URL}?folder_id=${analysisCode}`,
+      url: `${this.PROCESSOR_BASE_URL}/process?folder_id=${analysisCode}`,
     };
 
     try {

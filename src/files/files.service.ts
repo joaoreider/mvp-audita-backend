@@ -61,15 +61,20 @@ export class FilesService {
     return await this.s3.listBuckets().promise();
   }
 
-  async processFile(filename: string): Promise<void> {
+  async processFile(analysisCode: string): Promise<void> {
     const config = {
       string: '',
       method: 'GET',
-      url: `${this.PROCESSOR_BASE_URL}?filename=${filename}`,
+      url: `${this.PROCESSOR_BASE_URL}?folder_id=${analysisCode}`,
     };
 
-    await axios.request(config);
-    return;
+    try {
+      const result = await axios.request(config);
+      return result.data;
+    } catch (e) {
+      this.logger.error(`Error processing file: ${e}`);
+      throw e;
+    }
   }
 
   async clearUploads() {

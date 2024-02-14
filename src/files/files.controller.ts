@@ -52,18 +52,18 @@ export class FilesController {
   }
 
   @Get('process')
-  async processFile(@Query('filename') filename: string): Promise<string> {
+  async processFile(@Query('analysis-code') analysisCode: string) {
     try {
       this.logger.verbose(
-        `Api request to process file: ${JSON.stringify(filename)}`,
+        `Api request to process file: ${JSON.stringify(analysisCode)}`,
       );
-      if (!filename) {
-        throw new BadRequestException('Filename is required');
+      if (!analysisCode) {
+        throw new BadRequestException('AnalysisCode is required');
       }
 
-      await this.filesService.processFile(filename);
-      this.logger.log(`File processed with success`);
-      return 'File processed with success!';
+      const result = await this.filesService.processFile(analysisCode);
+      this.logger.log(`${analysisCode} files processed with success!`);
+      return result;
     } catch (err) {
       if (err instanceof BadRequestException) {
         throw err;

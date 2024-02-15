@@ -67,7 +67,7 @@ export class FilesService {
       method: 'GET',
       url: `${this.PROCESSOR_BASE_URL}/process?folder_id=${analysisCode}`,
     };
-
+    this.logger.log('Processor URL: ' + config.url);
     try {
       const result = await axios.request(config);
       return result.data;
